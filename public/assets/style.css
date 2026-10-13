@@ -1,0 +1,179 @@
+* {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-width: 320px;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.app-logo {
+    width: 130px;
+    height: 40px;
+    flex: 0 0 auto;
+}
+
+.app-user {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.app-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+}
+
+.app-nav a {
+    margin-right: 0;
+    white-space: nowrap;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px 18px;
+    max-width: 760px;
+}
+
+.form-grid label,
+.form-row label,
+.settings-form label {
+    display: block;
+    font-weight: 600;
+}
+
+.form-row {
+    max-width: 760px;
+    margin-top: 14px;
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.help-text {
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+}
+
+.table-wrap table {
+    min-width: 760px;
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 10px 12px;
+    margin-bottom: 14px;
+}
+
+.filters label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-weight: 600;
+}
+
+.status-note {
+    display: inline-block;
+    margin-top: 6px;
+    padding: 8px 10px;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    background: #eff6ff;
+    color: #1e3a8a;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.settings-form {
+    display: grid;
+    gap: 14px;
+    max-width: 720px;
+}
+
+.settings-form input,
+.settings-form select,
+.settings-form textarea,
+.form-grid input,
+.form-grid select,
+.form-grid textarea,
+.form-row input,
+.form-row select,
+.form-row textarea {
+    width: 100%;
+    max-width: 100%;
+}
+
+input,
+select,
+textarea {
+    max-width: 100%;
+}
+
+textarea {
+    resize: vertical;
+}
+
+footer {
+    padding: 12px 20px;
+    color: #6b7280;
+    border-top: 3px solid #eee;
+}
+
+@media (max-width: 640px) {
+    header,
+    nav,
+    main {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    main {
+        padding-top: 14px !important;
+    }
+
+    .btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    form.inline {
+        display: block;
+    }
+
+    .filters label,
+    .filters input,
+    .filters select,
+    .filters .btn {
+        width: 100%;
+    }
+
+    .select2-container {
+        width: 100% !important;
+    }
+}

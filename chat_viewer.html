@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>iMessage Viewer Stable</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+* { box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #e5e5ea;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chat {
+  width: 375px;
+  background: #fff;
+  border-radius: 30px;
+  padding: 15px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 650px;
+  overflow-y: auto;
+}
+
+.message-row {
+  display: flex;
+  width: 100%;
+}
+
+.message-row.left {
+  justify-content: flex-start;
+}
+
+.message-row.right {
+  justify-content: flex-end;
+}
+
+.message-content {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  max-width: 85%;
+}
+
+.message-row.right .message-content {
+  flex-direction: row-reverse;
+}
+
+.bubble {
+  padding: 8px 12px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.35;
+  word-break: break-word;
+  max-width: 100%;
+}
+
+.client .bubble {
+  background: #e5e5ea;
+  color: black;
+  border-bottom-left-radius: 4px;
+}
+
+.operator .bubble {
+  background: #007aff;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.bot .bubble {
+  background: #34c759;
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  background: #c7c7cc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.time {
+  font-size: 10px;
+  color: #666;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+
+.date-separator {
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+  margin: 10px 0;
+}
+
+.uploader { margin-bottom: 15px; }
+</style>
+</head>
+<body>
+
+<div class="uploader">
+<input type="file" id="fileInput" accept=".xlsx" />
+</div>
+
+<div class="chat" id="chat"></div>
+
+<script>
+const chat = document.getElementById('chat');
+document.getElementById('fileInput').addEventListener('change', handleFile);
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const data = new Uint8Array(evt.target.result);
+    const workbook = XLSX.read(data, { type: 'array' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true });
+    renderChat(rows);
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function excelToDate(val) {
+  if (typeof val === 'number') {
+    const epoch = new Date(1899, 11, 30);
+    return new Date(epoch.getTime() + val * 86400000);
+  }
+  return new Date(val);
+}
+
+function formatTime(date) {
+  return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDateLabel(date) {
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const same = (a,b)=>a.toDateString()===b.toDateString();
+
+  if (same(date,today)) return 'Сегодня';
+  if (same(date,yesterday)) return 'Вчера';
+
+  return date.toLocaleDateString('ru-RU', { day:'numeric', month:'long' });
+}
+
+function getAvatar(author) {
+  if (author === 'Клиент') return 'К';
+  if (author === 'Оператор') return 'О';
+  return 'Б';
+}
+
+function renderChat(rows) {
+  chat.innerHTML = '';
+  let lastDate = null;
+
+  rows.slice(1).forEach(row => {
+    const rawDate = row[0];
+    const author = row[1];
+    const text = row[2];
+
+    if (!rawDate || !author || !text) return;
+
+    const dateObj = excelToDate(rawDate);
+    if (isNaN(dateObj)) return;
+
+    const time = formatTime(dateObj);
+    const dateLabel = formatDateLabel(dateObj);
+
+    if (dateLabel !== lastDate) {
+      const sep = document.createElement('div');
+      sep.className = 'date-separator';
+      sep.textContent = dateLabel;
+      chat.appendChild(sep);
+      lastDate = dateLabel;
+    }
+
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'message-row';
+
+    const isClient = author === 'Клиент';
+    rowDiv.classList.add(isClient ? 'left' : 'right');
+
+    const content = document.createElement('div');
+    content.className = 'message-content';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.textContent = getAvatar(author);
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+    bubble.textContent = text;
+
+    const timeDiv = document.createElement('div');
+    timeDiv.className = 'time';
+    timeDiv.textContent = author + ' · ' + time;
+
+    meta.appendChild(bubble);
+    meta.appendChild(timeDiv);
+
+    if (author === 'Клиент') content.classList.add('client');
+    else if (author === 'Оператор') content.classList.add('operator');
+    else content.classList.add('bot');
+
+    content.appendChild(avatar);
+    content.appendChild(meta);
+
+    rowDiv.appendChild(content);
+    chat.appendChild(rowDiv);
+  });
+
+  chat.scrollTop = chat.scrollHeight;
+}
+</script>
+
+<button id="copyBtn" style="margin-top:15px;padding:10px 15px;border:none;border-radius:10px;background:#007aff;color:white;font-size:14px;cursor:pointer;">Скопировать как изображение</button>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+const copyBtn = document.getElementById('copyBtn');
+
+copyBtn.addEventListener('click', async () => {
+  const canvas = await html2canvas(chat, {
+    backgroundColor: null,
+    scale: 2
+  });
+
+  canvas.toBlob(async (blob) => {
+    try {
+      await navigator.clipboard.write([
+        new ClipboardItem({ 'image/png': blob })
+      ]);
+      copyBtn.textContent = 'Скопировано ✅';
+      setTimeout(() => copyBtn.textContent = 'Скопировать как изображение', 2000);
+    } catch (err) {
+      alert('Не удалось скопировать. Попробуй другой браузер.');
+    }
+  });
+});
+</script>
+
+</body>
+</html>

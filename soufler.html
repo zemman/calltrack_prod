@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Невидимые символы для суфлера</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 24px;
+      background-color: #fcfcfc;
+      color: #222;
+      line-height: 1.5;
+    }
+    h1 {
+      margin-bottom: 20px;
+      color: #1a1a1a;
+    }
+    .symbol-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .symbol-preview {
+      flex: 1;
+      font-size: 20px;
+      min-height: 28px;
+      border: 1px dashed #aaa;
+      padding: 6px 10px;
+      margin-right: 16px;
+      background-color: #f8f8f8;
+      font-family: monospace;
+    }
+    .symbol-info {
+      font-size: 14px;
+      color: #555;
+      margin-right: 16px;
+      min-width: 220px;
+    }
+    button {
+      padding: 6px 14px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #1d4ed8;
+    }
+    .copy-all {
+      margin-top: 24px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #0d9488;
+    }
+    .copy-all:hover {
+      background: #0f766e;
+    }
+    .note {
+      margin-top: 24px;
+      padding: 12px;
+      background: #fff8e1;
+      border-left: 4px solid #ffc107;
+      font-size: 14px;
+      color: #5d4037;
+    }
+  </style>
+</head>
+<body>
+  <h1>Невидимые символы для суфлера</h1>
+
+  <div id="symbols-list">
+    <!-- Символы будут вставлены сюда -->
+  </div>
+
+
+
+  <script>
+    const symbols = [
+      { char: "\u3164", name: "Приветствие", code: "U+3164" },
+      { char: "\u115F", name: "Промежуточный", code: "U+115F" },
+      { char: "\u1160", name: "Финальный", code: "U+1160" },
+    ];
+
+    const list = document.getElementById("symbols-list");
+
+    symbols.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "symbol-item";
+
+      const preview = document.createElement("div");
+      preview.className = "symbol-preview";
+      // Показываем в кавычках для наглядности
+      preview.textContent = `"${item.char}"`;
+
+      const info = document.createElement("div");
+      info.className = "symbol-info";
+      info.textContent = `${item.name} (${item.code})`;
+
+      const btn = document.createElement("button");
+      btn.textContent = "Копировать";
+      btn.onclick = () => copyToClipboard(item.char);
+
+      div.appendChild(preview);
+      div.appendChild(info);
+      div.appendChild(btn);
+
+      list.appendChild(div);
+    });
+
+    async function copyToClipboard(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        alert(`Скопировано: [невидимый символ ${text.codePointAt(0).toString(16).toUpperCase()}]`);
+      } catch (err) {
+        console.error("Ошибка копирования:", err);
+        alert("Не удалось скопировать символ. Попробуйте вручную.");
+      }
+    }
+
+    async function copyAll() {
+      const allText = symbols.map(s => s.char).join("");
+      try {
+        await navigator.clipboard.writeText(allText);
+        alert("Все 5 символов скопированы!");
+      } catch (err) {
+        console.error("Ошибка копирования всех:", err);
+        alert("Не удалось скопировать все символы.");
+      }
+    }
+  </script>
+</body>
+</html>
